@@ -1,0 +1,6 @@
+@StoreOfCoinsApi_HostAddress = http://localhost:5174
+
+GET {{StoreOfCoinsApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
