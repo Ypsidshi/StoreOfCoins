@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StoreOfCoinsApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf147b87c403f64f03ee034f1c2f883510d3e049")]
 [assembly: System.Reflection.AssemblyProductAttribute("StoreOfCoinsApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StoreOfCoinsApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
