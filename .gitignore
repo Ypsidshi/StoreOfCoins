@@ -1,1 +1,74 @@
+# .NET / Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Artifacts
+*.dll
+*.exe
+*.pdb
+*.mdb
+*.cache
+*.log
+*.tmp
+*.temp
+*.tlog
+*.ilk
+*.idb
+*.aps
+*.ncb
+*.opendb
+*.VC.db
+
+# Test
+TestResults/
+**/TestResults/
+*.trx
+*.coverage*
+
+# Packages (if using packages folder)
+packages/
+**/packages/*
+!**/packages/build/
+
+# Publish outputs
+publish/
+artifacts/
+
+# Rider / VS Code / JetBrains
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+**/.docker/
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+
+# Coverage tools
+coverage/
+coverage.*
+.nyc_output/
+
+# Others you typically don't want in VCS
+StoreOfCoinsApi/bin/
+StoreOfCoinsApi/obj/
+StoreOfCoinsApi.Tests/bin/
+StoreOfCoinsApi.Tests/obj/
+
 .vs/
