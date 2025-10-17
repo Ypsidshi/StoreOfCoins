@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using StoreOfCoinsApi.Controllers;
@@ -13,10 +15,11 @@ public class CoinsControllerIntegrationTests : IDisposable
     private readonly CoinsService _coinsService;
     private readonly CoinsController _controller;
     private readonly IMongoDatabase _mongoDatabase;
+    private readonly IDistributedCache _cache;
 
     public CoinsControllerIntegrationTests()
     {
-        // Настройка подключения к тестовой базе MongoDB
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ MongoDB
         var settings = new StoreOfCoinsDatabaseSettings
         {
             ConnectionString = "mongodb://localhost:27017",
@@ -27,10 +30,11 @@ public class CoinsControllerIntegrationTests : IDisposable
         var mongoClient = new MongoClient(settings.ConnectionString);
         _mongoDatabase = mongoClient.GetDatabase(settings.DatabaseName);
         _coinsService = new CoinsService(Options.Create(settings));
-        _controller = new CoinsController(_coinsService);
+        _cache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+        _controller = new CoinsController(_coinsService, _cache);
     }
 
-    // Генерация случайных данных для монет
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     private List<Coin> GenerateRandomCoins(int count)
     {
         var random = new Random();
@@ -50,7 +54,7 @@ public class CoinsControllerIntegrationTests : IDisposable
         return coins;
     }
 
-    // Интеграционный тест: добавление 100 монет
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 100 пїЅпїЅпїЅпїЅпїЅ
     [Fact]
     public async Task Add100Coins_IntegrationTest()
     {
@@ -63,13 +67,16 @@ public class CoinsControllerIntegrationTests : IDisposable
             await _controller.Post(coin);
         }
 
-        var result = await _controller.Get();
+        var action = await _controller.Get();
+        var ok = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(action);
+        var payload = Assert.IsType<dynamic>(ok.Value);
+        var result = (IEnumerable<Coin>)payload.data;
 
         // Assert
-        Assert.Equal(100, result.Count);
+        Assert.Equal(100, System.Linq.Enumerable.Count(result));
     }
 
-    // Интеграционный тест: добавление 100,000 монет
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 100,000 пїЅпїЅпїЅпїЅпїЅ
     [Fact]
     public async Task Add100000Coins_IntegrationTest()
     {
@@ -82,18 +89,24 @@ public class CoinsControllerIntegrationTests : IDisposable
             await _controller.Post(coin);
         }
 
-        var result = await _controller.Get();
+        var action = await _controller.Get();
+        var ok = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(action);
+        var payload = Assert.IsType<dynamic>(ok.Value);
+        var result = (IEnumerable<Coin>)payload.data;
 
         // Assert
-        Assert.Equal(100000, result.Count);
+        Assert.Equal(100000, System.Linq.Enumerable.Count(result));
     }
 
-    // Интеграционный тест: удаление всех монет
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     [Fact]
     public async Task DeleteAllCoins_IntegrationTest()
     {
         // Arrange
-        var result = await _controller.Get();
+        var action = await _controller.Get();
+        var ok = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(action);
+        var payload = Assert.IsType<dynamic>(ok.Value);
+        var result = (IEnumerable<Coin>)payload.data;
 
         // Act
         foreach (var coin in result)
@@ -101,13 +114,16 @@ public class CoinsControllerIntegrationTests : IDisposable
             await _controller.Delete(coin.Id);
         }
 
-        var finalResult = await _controller.Get();
+        var finalAction = await _controller.Get();
+        var finalOk = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(finalAction);
+        var finalPayload = Assert.IsType<dynamic>(finalOk.Value);
+        var finalResult = (IEnumerable<Coin>)finalPayload.data;
 
         // Assert
         Assert.Empty(finalResult);
     }
 
-    // Очистка коллекции после тестов
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     public void Dispose()
     {
         _mongoDatabase.DropCollection("TestCoins");
