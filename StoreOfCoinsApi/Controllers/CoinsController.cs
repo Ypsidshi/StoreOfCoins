@@ -13,11 +13,13 @@ namespace StoreOfCoinsApi.Controllers
     {
         private readonly CoinsService _coinsService;
         private readonly IDistributedCache _cache;
+        private readonly IObjectsProducer _producer;
 
-        public CoinsController(CoinsService coinsService, IDistributedCache cache)
+        public CoinsController(CoinsService coinsService, IDistributedCache cache, IObjectsProducer producer)
         {
             _coinsService = coinsService;
             _cache = cache;
+            _producer = producer;
         }
 
         // Метод для получения всех монет (кэширование не нужно)
@@ -67,6 +69,12 @@ namespace StoreOfCoinsApi.Controllers
 
             // Очищаем кэш для списка монет, чтобы в следующий раз получить обновленные данные
             await _cache.RemoveAsync("coinsList");
+
+            // Отправляем запрос на подтверждение (если указан пользователь)
+            if (!string.IsNullOrWhiteSpace(newCoin.ConfirmedByUserId) && !string.IsNullOrWhiteSpace(newCoin.Id))
+            {
+                await _producer.SendConfirmRequestAsync(new ConfirmRequestMessage(newCoin.Id, newCoin.ConfirmedByUserId));
+            }
 
             return CreatedAtAction(nameof(Get), new { id = newCoin.Id }, newCoin);
         }

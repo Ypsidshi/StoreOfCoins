@@ -16,7 +16,14 @@ namespace StoreOfCoinsApi.Models
         public string Currency { get; set; } = null!;
         public decimal Value { get; set; }
         public decimal Price { get; set; }
-
-      
+        // Идентификатор пользователя, подтвердившего добавление
+        [BsonElement("ConfirmedByUserId")]
+        public string? ConfirmedByUserId { get; set; }
+        // Время подтверждения (строковое, по заданию)
+        [BsonElement("ConfirmationTime")]
+        public string? ConfirmationTime { get; set; }
+        // Строка с информацией о подтверждении
+        [BsonElement("ConfirmationInfo")]
+        public string? ConfirmationInfo { get; set; }
     }
 }

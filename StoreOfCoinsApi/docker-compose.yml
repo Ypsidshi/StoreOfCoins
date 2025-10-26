@@ -13,6 +13,21 @@ services:
     networks:
       - observability
 
+  usersapi:
+    build:
+      context: ../UsersApi
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:5180
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5180:5180"
+    depends_on:
+      - kafka
+      - mongodb
+    networks:
+      - observability
+
   prometheus:
     image: prom/prometheus:v2.54.1
     command:
@@ -35,6 +50,37 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
+    networks:
+      - observability
+
+  zookeeper:
+    image: bitnami/zookeeper:3.9
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+    networks:
+      - observability
+
+  kafka:
+    image: bitnami/kafka:3.7
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    networks:
+      - observability
+
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
     networks:
       - observability
 

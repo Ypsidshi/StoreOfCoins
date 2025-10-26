@@ -3,8 +3,9 @@ using StoreOfCoinsApi.Services; // �������� ���� using, 
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Instrumentation.Runtime;
-using OpenTelemetry.Instrumentation.Process;
+using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Instrumentation.Http;
+using StoreOfCoinsApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,11 @@ builder.Services.AddOpenTelemetry()
         .AddRuntimeInstrumentation()
         .AddProcessInstrumentation()
         .AddPrometheusExporter());
+
+// Kafka configuration
+builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection("Kafka"));
+builder.Services.AddSingleton<IObjectsProducer, ObjectsProducer>();
+builder.Services.AddHostedService<ObjectsConfirmResponseConsumer>();
 
 var app = builder.Build();
 
