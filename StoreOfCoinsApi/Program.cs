@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // ��������� Redis Cache
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "localhost:6379"; // ����� Redis-�������
+    options.Configuration = builder.Configuration.GetValue<string>("Redis:Configuration") ?? "localhost:6379"; // ����� Redis-�������
     options.InstanceName = "StoreOfCoins_";   // ������� ��� ������
 });
 
