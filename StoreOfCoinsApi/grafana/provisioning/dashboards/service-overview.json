@@ -1,0 +1,137 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["storeofcoins", "service", "overview"],
+  "templating": {
+    "list": [
+      {
+        "name": "job",
+        "label": "Service",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(job)",
+        "includeAll": true,
+        "multi": true,
+        "refresh": 2,
+        "current": {
+          "selected": true,
+          "text": ["All"],
+          "value": ["$__all"]
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timezone": "",
+  "title": "StoreOfCoins - Service Overview",
+  "uid": "soc-service-overview",
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "RPS (sum)",
+      "id": 1,
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=~\"$job\"}[1m]))",
+          "legendFormat": "RPS"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "RPS by service",
+      "id": 2,
+      "gridPos": { "h": 8, "w": 18, "x": 6, "y": 0 },
+      "lines": true,
+      "fill": 1,
+      "targets": [
+        {
+          "expr": "sum by (job) (rate(http_server_request_duration_seconds_count{job=~\"$job\"}[1m]))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "yaxes": [ { "format": "reqps" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "Latency P95",
+      "id": 3,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "lines": true,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, job) (rate(http_server_request_duration_seconds_bucket{job=~\"$job\"}[5m])))",
+          "legendFormat": "P95 {{job}}"
+        }
+      ],
+      "yaxes": [ { "format": "s" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "Latency P99",
+      "id": 4,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "lines": true,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le, job) (rate(http_server_request_duration_seconds_bucket{job=~\"$job\"}[5m])))",
+          "legendFormat": "P99 {{job}}"
+        }
+      ],
+      "yaxes": [ { "format": "s" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "4xx Error Rate %",
+      "id": 5,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "lines": true,
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=~\"$job\",status_code=~\"4..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{job=~\"$job\"}[5m])) * 100",
+          "legendFormat": "4xx {{job}}"
+        }
+      ],
+      "yaxes": [ { "format": "percent" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "5xx Error Rate %",
+      "id": 6,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "lines": true,
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=~\"$job\",status_code=~\"5..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{job=~\"$job\"}[5m])) * 100",
+          "legendFormat": "5xx {{job}}"
+        }
+      ],
+      "yaxes": [ { "format": "percent" }, { "format": "short" } ]
+    }
+  ]
+}

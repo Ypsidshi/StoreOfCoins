@@ -36,6 +36,8 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<User>> Post([FromBody] User user)
     {
+        // Игнорируем входящее Id, чтобы MongoDB сгенерировал корректный ObjectId
+        user.Id = null;
         await _users.InsertOneAsync(user);
         return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
     }

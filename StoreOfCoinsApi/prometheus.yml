@@ -8,4 +8,10 @@ scrape_configs:
     static_configs:
       - targets: ['host.docker.internal:5174']
 
+  - job_name: 'users-api'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['host.docker.internal:5180']
+
 

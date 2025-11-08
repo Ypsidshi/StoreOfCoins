@@ -1,0 +1,122 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["storeofcoins", "runtime", "resources"],
+  "templating": {
+    "list": [
+      {
+        "name": "job",
+        "label": "Service",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(job)",
+        "includeAll": true,
+        "multi": true,
+        "refresh": 2,
+        "current": {
+          "selected": true,
+          "text": ["All"],
+          "value": ["$__all"]
+        }
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "",
+  "title": "StoreOfCoins - Runtime & Resources",
+  "uid": "soc-runtime-resources",
+  "version": 1,
+  "panels": [
+    {
+      "type": "graph",
+      "title": "CPU seconds (rate)",
+      "id": 10,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "lines": true,
+      "targets": [
+        {
+          "expr": "sum by (job) (rate(process_cpu_time_seconds_total{job=~\"$job\"}[1m]))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "yaxes": [ { "format": "s" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "Working Set (bytes)",
+      "id": 11,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "lines": true,
+      "targets": [
+        { "expr": "max by (job) (process_memory_usage_bytes{job=~\"$job\"})", "legendFormat": "{{job}}" }
+      ],
+      "yaxes": [ { "format": "bytes" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": ".NET GC Heap Size (bytes)",
+      "id": 12,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "lines": true,
+      "targets": [
+        { "expr": "max by (job) (process_runtime_dotnet_gc_heap_size_bytes{job=~\"$job\"})", "legendFormat": "{{job}}" }
+      ],
+      "yaxes": [ { "format": "bytes" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "GC Collections/sec",
+      "id": 13,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "lines": true,
+      "targets": [
+        {
+          "expr": "sum by (job) (rate(process_runtime_dotnet_gc_collections_count_total{job=~\"$job\"}[1m]))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "yaxes": [ { "format": "ops" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "Thread Pool Threads",
+      "id": 14,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "lines": true,
+      "targets": [
+        { "expr": "max by (job) (process_runtime_dotnet_thread_pool_threads_count{job=~\"$job\"})", "legendFormat": "{{job}}" }
+      ],
+      "yaxes": [ { "format": "short" }, { "format": "short" } ]
+    },
+    {
+      "type": "graph",
+      "title": "Process Threads",
+      "id": 15,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "lines": true,
+      "targets": [
+        { "expr": "max by (job) (process_thread_count{job=~\"$job\"})", "legendFormat": "{{job}}" }
+      ],
+      "yaxes": [ { "format": "short" }, { "format": "short" } ]
+    }
+  ]
+}

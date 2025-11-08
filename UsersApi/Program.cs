@@ -17,7 +17,12 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService(builder.Environment.ApplicationName))
     .WithTracing(t => t.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation())
-    .WithMetrics(m => m.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation().AddPrometheusExporter());
+    .WithMetrics(m => m
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddProcessInstrumentation()
+        .AddPrometheusExporter());
 
 // Register Kafka consumer
 builder.Services.AddHostedService<UsersConfirmConsumerProducer>();

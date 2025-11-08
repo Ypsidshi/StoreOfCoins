@@ -53,11 +53,11 @@ namespace StoreOfCoinsApi.Controllers
             return Ok(new { message = "100 монет успешно добавлены в базу данных." });
         }
 
-        // Тест 2: Добавление 100,000 монет
-        [HttpPost("add-100000-coins")]
-        public async Task<IActionResult> Add100000Coins()
+        // Тест 2: Добавление 1000 монет
+        [HttpPost("add-1000-coins")]
+        public async Task<IActionResult> Add1000Coins()
         {
-            var coins = GenerateRandomCoins(100000);
+            var coins = GenerateRandomCoins(1000);
 
             foreach (var coin in coins)
             {
