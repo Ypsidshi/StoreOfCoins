@@ -1,11 +1,11 @@
 using StoreOfCoinsApi.Models;
-using StoreOfCoinsApi.Services; // �������� ���� using, ���� ������ ��������� � ������ �����
+using StoreOfCoinsApi.Services;
+using StoreOfCoinsApi.GraphQL;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Instrumentation.Http;
-using StoreOfCoinsApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +25,14 @@ builder.Services.AddControllers()
     .AddJsonOptions(
         options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddSwaggerGen();
+
+// GraphQL (HotChocolate)
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
+    .AddFiltering()
+    .AddSorting();
 
 // OpenTelemetry: Traces + Metrics with Prometheus exporter
 builder.Services.AddOpenTelemetry()
@@ -63,6 +71,7 @@ app.UseAuthorization();
 // Prometheus scrape endpoint (/metrics)
 app.MapPrometheusScrapingEndpoint();
 app.MapControllers();
+app.MapGraphQL("/graphql");
 app.Run();
 
 //�������� ����� �� ��� ��, � � ������������

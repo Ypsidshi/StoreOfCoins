@@ -11,13 +11,15 @@
 На Windows нужно ещё предварительно запустить приложеине docker desktop
 
 Далее, сервисы будут доступны по адресам:
-- Swagger монет: http://localhost:5174/swagger
+- Swagger монет: http://localhost:5174/swagger
 
-- Swagger пользователей: http://localhost:5180/swagger
+- GraphQL (HotChocolate) монет: http://localhost:5174/graphql
 
-- Prometheus: http://localhost:9090
+- Swagger пользователей: http://localhost:5180/swagger
 
-- Grafana: http://localhost:3000 (admin/admin)
+- Prometheus: http://localhost:9090
+
+- Grafana: http://localhost:3000 (admin/admin)
 
 Краткое саммари по метрикам
 
@@ -169,3 +171,115 @@ GC Heap Size: быстрый рост
 GC Collections/sec: высокие значения
 CPU: высокий
 → Оптимизация аллокаций
+
+## GraphQL API (HotChocolate)
+
+Добавлен альтернативный API на GraphQL для сервиса монет. Эндпоинт: `http://localhost:5174/graphql`
+
+- В Dev-режиме доступен встроенный GraphQL IDE (Banana Cake Pop) по этому же адресу.
+- Поддерживаются Query и Mutation, включая фильтрацию и сортировку.
+
+### Примеры запросов (Query)
+
+1) Получение списка монет только с нужными полями:
+
+```graphql
+query {
+  coins {
+    id
+    country
+    price
+  }
+}
+```
+
+2) Фильтрация и сортировка на стороне GraphQL:
+
+```graphql
+query {
+  coins(where: { country: { eq: "USA" }, price: { gte: 10 } }, order: { price: DESC }) {
+    id
+    country
+    currency
+    price
+  }
+}
+```
+
+3) Поиск по идентификатору:
+
+```graphql
+query($id: String!) {
+  coinById(id: $id) {
+    id
+    country
+    year
+    currency
+    value
+    price
+    confirmationTime
+    confirmationInfo
+  }
+}
+```
+
+### Примеры мутаций (Mutation)
+
+1) Создание монеты (при наличии `confirmedByUserId` триггерится Kafka-подтверждение):
+
+```graphql
+mutation {
+  createCoin(input: {
+    country: "USA"
+    year: 1999
+    currency: "USD"
+    value: 1
+    price: 25
+    confirmedByUserId: "64f6e0d8c1234567890abcde"
+  }) {
+    id
+    country
+    price
+    confirmationTime
+  }
+}
+```
+
+2) Обновление монеты:
+
+```graphql
+mutation {
+  updateCoin(id: "64f6e0d8c1234567890abcde", input: {
+    country: "USA"
+    year: 2000
+    currency: "USD"
+    value: 1
+    price: 30
+  }) {
+    id
+    country
+    year
+    price
+  }
+}
+```
+
+3) Удаление монеты:
+
+```graphql
+mutation {
+  deleteCoin(id: "64f6e0d8c1234567890abcde")
+}
+```
+
+### Почему GraphQL удобнее на этом примере
+
+- **Выбор полей**: клиент запрашивает только нужные поля (меньше сетевого трафика, упрощение моделей на фронте).
+- **Гибкие фильтры и сортировка**: без добавления новых REST-эндпоинтов можно комбинировать условия и порядок выдачи.
+- **Единая схема**: Query/Mutation в одном эндпоинте, удобная эволюция API без версионирования в URL.
+
+### Как запустить локально
+
+1) `dotnet restore` в решении.
+2) Запустить профиль `http` для `StoreOfCoinsApi` (порт 5174). Открыть `http://localhost:5174/graphql`.
+3) Для развёртывания всего стенда см. инструкцию по `docker-compose` выше.
