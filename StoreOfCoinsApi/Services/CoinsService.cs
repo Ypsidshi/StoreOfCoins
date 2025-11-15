@@ -12,6 +12,9 @@ namespace StoreOfCoinsApi.Services;
         private static readonly Counter<long> CoinsReadCounter = TelemetryMeter.CreateCounter<long>("coins_read_total", unit: "items", description: "Total coins read operations");
         private static readonly Counter<long> CoinsWriteCounter = TelemetryMeter.CreateCounter<long>("coins_write_total", unit: "items", description: "Total coins write operations");
         private static readonly Histogram<double> MongoRequestDurationMs = TelemetryMeter.CreateHistogram<double>("mongo_request_duration_ms", unit: "ms", description: "MongoDB request duration");
+        private static readonly Counter<long> CoinsCreatedCounter = TelemetryMeter.CreateCounter<long>("coins_created_total", unit: "items", description: "Total coins created");
+        private static readonly Counter<long> CoinsUpdatedCounter = TelemetryMeter.CreateCounter<long>("coins_updated_total", unit: "items", description: "Total coins updated");
+        private static readonly Counter<long> CoinsDeletedCounter = TelemetryMeter.CreateCounter<long>("coins_deleted_total", unit: "items", description: "Total coins deleted");
 
         public CoinsService(
             IOptions<StoreOfCoinsDatabaseSettings> coinStoreDatabaseSettings)
@@ -50,6 +53,7 @@ namespace StoreOfCoinsApi.Services;
             var start = System.Diagnostics.Stopwatch.GetTimestamp();
             await _coinsCollection.InsertOneAsync(newCoin);
             CoinsWriteCounter.Add(1, KeyValuePair.Create<string, object?>("method", "insert_one"));
+            CoinsCreatedCounter.Add(1, KeyValuePair.Create<string, object?>("operation", "create"));
             var elapsedMs = (System.Diagnostics.Stopwatch.GetTimestamp() - start) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
             MongoRequestDurationMs.Record(elapsedMs, KeyValuePair.Create<string, object?>("operation", "insert_one"));
         }
@@ -59,6 +63,7 @@ namespace StoreOfCoinsApi.Services;
             var start = System.Diagnostics.Stopwatch.GetTimestamp();
             await _coinsCollection.ReplaceOneAsync(x => x.Id == id, updatedCoin);
             CoinsWriteCounter.Add(1, KeyValuePair.Create<string, object?>("method", "replace_one"));
+            CoinsUpdatedCounter.Add(1, KeyValuePair.Create<string, object?>("operation", "update"));
             var elapsedMs = (System.Diagnostics.Stopwatch.GetTimestamp() - start) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
             MongoRequestDurationMs.Record(elapsedMs, KeyValuePair.Create<string, object?>("operation", "replace_one"));
         }
@@ -68,6 +73,7 @@ namespace StoreOfCoinsApi.Services;
             var start = System.Diagnostics.Stopwatch.GetTimestamp();
             await _coinsCollection.DeleteOneAsync(x => x.Id == id);
             CoinsWriteCounter.Add(1, KeyValuePair.Create<string, object?>("method", "delete_one"));
+            CoinsDeletedCounter.Add(1, KeyValuePair.Create<string, object?>("operation", "delete"));
             var elapsedMs = (System.Diagnostics.Stopwatch.GetTimestamp() - start) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
             MongoRequestDurationMs.Record(elapsedMs, KeyValuePair.Create<string, object?>("operation", "delete_one"));
         }
