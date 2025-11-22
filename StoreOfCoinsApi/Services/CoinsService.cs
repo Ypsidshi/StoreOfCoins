@@ -9,12 +9,12 @@ namespace StoreOfCoinsApi.Services;
     {
         private readonly IMongoCollection<Coin> _coinsCollection;
         private static readonly Meter TelemetryMeter = new("StoreOfCoins.Metrics", "1.0.0");
-        private static readonly Counter<long> CoinsReadCounter = TelemetryMeter.CreateCounter<long>("coins_read_total", unit: "items", description: "Total coins read operations");
-        private static readonly Counter<long> CoinsWriteCounter = TelemetryMeter.CreateCounter<long>("coins_write_total", unit: "items", description: "Total coins write operations");
+        private static readonly Counter<long> CoinsReadCounter = TelemetryMeter.CreateCounter<long>("coins_read", unit: "items", description: "Total coins read operations");
+        private static readonly Counter<long> CoinsWriteCounter = TelemetryMeter.CreateCounter<long>("coins_write", unit: "items", description: "Total coins write operations");
         private static readonly Histogram<double> MongoRequestDurationMs = TelemetryMeter.CreateHistogram<double>("mongo_request_duration_ms", unit: "ms", description: "MongoDB request duration");
-        private static readonly Counter<long> CoinsCreatedCounter = TelemetryMeter.CreateCounter<long>("coins_created_total", unit: "items", description: "Total coins created");
-        private static readonly Counter<long> CoinsUpdatedCounter = TelemetryMeter.CreateCounter<long>("coins_updated_total", unit: "items", description: "Total coins updated");
-        private static readonly Counter<long> CoinsDeletedCounter = TelemetryMeter.CreateCounter<long>("coins_deleted_total", unit: "items", description: "Total coins deleted");
+        private static readonly Counter<long> CoinsCreatedCounter = TelemetryMeter.CreateCounter<long>("coins_created", unit: "items", description: "Total coins created");
+        private static readonly Counter<long> CoinsUpdatedCounter = TelemetryMeter.CreateCounter<long>("coins_updated", unit: "items", description: "Total coins updated");
+        private static readonly Counter<long> CoinsDeletedCounter = TelemetryMeter.CreateCounter<long>("coins_deleted", unit: "items", description: "Total coins deleted");
 
         public CoinsService(
             IOptions<StoreOfCoinsDatabaseSettings> coinStoreDatabaseSettings)

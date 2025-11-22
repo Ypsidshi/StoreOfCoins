@@ -41,7 +41,7 @@
       "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
       "targets": [
         {
-          "expr": "storeofcoins_coins_created_total",
+          "expr": "coins_created_items_total",
           "legendFormat": "Created"
         }
       ],
@@ -79,7 +79,7 @@
       "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
       "targets": [
         {
-          "expr": "storeofcoins_coins_updated_total",
+          "expr": "coins_updated_items_total",
           "legendFormat": "Updated"
         }
       ],
@@ -117,7 +117,7 @@
       "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
       "targets": [
         {
-          "expr": "storeofcoins_coins_deleted_total",
+          "expr": "coins_deleted_items_total",
           "legendFormat": "Deleted"
         }
       ],
@@ -155,7 +155,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "targets": [
         {
-          "expr": "rate(storeofcoins_coins_created_total[1m])",
+          "expr": "rate(coins_created_items_total[1m])",
           "legendFormat": "Created/min"
         }
       ],
@@ -227,7 +227,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
       "targets": [
         {
-          "expr": "rate(storeofcoins_coins_updated_total[1m])",
+          "expr": "rate(coins_updated_items_total[1m])",
           "legendFormat": "Updated/min"
         }
       ],
@@ -299,7 +299,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
       "targets": [
         {
-          "expr": "rate(storeofcoins_coins_deleted_total[1m])",
+          "expr": "rate(coins_deleted_items_total[1m])",
           "legendFormat": "Deleted/min"
         }
       ],
@@ -371,7 +371,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
       "targets": [
         {
-          "expr": "storeofcoins_coins_created_total + storeofcoins_coins_updated_total + storeofcoins_coins_deleted_total",
+          "expr": "coins_created_items_total + coins_updated_items_total + coins_deleted_items_total",
           "legendFormat": "Total"
         }
       ],
