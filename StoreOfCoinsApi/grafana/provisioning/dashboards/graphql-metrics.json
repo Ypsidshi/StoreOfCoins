@@ -1,0 +1,180 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["storeofcoins", "graphql"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timezone": "",
+  "title": "StoreOfCoins - GraphQL Metrics",
+  "uid": "soc-graphql-metrics",
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "GraphQL - Request Rate",
+      "id": 1,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{route=\"/graphql\"}[1m])) by (method, operation_name, operation_type)",
+          "legendFormat": "{{method}} {{operation_type}} {{operation_name}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "GraphQL - Request Duration (p95)",
+      "id": 2,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{route=\"/graphql\"}[1m])) by (le, operation_name, operation_type))",
+          "legendFormat": "{{operation_type}} {{operation_name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "GraphQL - Error Rate",
+      "id": 3,
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{route=\"/graphql\", status=~\"5..\"}[1m])) by (operation_name, operation_type, status)",
+          "legendFormat": "{{operation_type}} {{operation_name}} {{status}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0.1, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "GraphQL - Active Operations",
+      "id": 4,
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_sum{route=\"/graphql\"}[1m]) / rate(http_server_requests_seconds_count{route=\"/graphql\"}[1m])) by (operation_name, operation_type)",
+          "legendFormat": "{{operation_type}} {{operation_name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "req/s"
+        }
+      }
+    },
+    {
+      "type": "table",
+      "title": "GraphQL - Operation Stats",
+      "id": 5,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{route=\"/graphql\"}[5m])) by (operation_name, operation_type, status)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "{{operation_type}} {{operation_name}} {{status}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": ["RPS"]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        }
+      }
+    }
+  ]
+}
