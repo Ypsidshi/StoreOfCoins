@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storeofcoinsapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: storeofcoinsapi
+  template:
+    metadata:
+      labels:
+        app: storeofcoinsapi
+    spec:
+      containers:
+        - name: storeofcoinsapi
+          image: storeofcoinsapi:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5174
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: StoreOfCoinsDatabase__ConnectionString
+              value: "mongodb://mongo:27017"
+            - name: StoreOfCoinsDatabase__DatabaseName
+              value: "StoreOfCoins"
+            - name: StoreOfCoinsDatabase__CoinsCollectionName
+              value: "Coins"
+            - name: Redis__Configuration
+              value: "redis:6379"
+            - name: Kafka__BootstrapServers
+              value: "kafka:9092"
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 5174
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 5174
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storeofcoinsapi
+spec:
+  selector:
+    app: storeofcoinsapi
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5174
+      nodePort: 30080
+  type: NodePort
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: storeofcoinsapi-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: storeofcoinsapi
+  minReplicas: 3
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usersapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: usersapi
+  template:
+    metadata:
+      labels:
+        app: usersapi
+    spec:
+      containers:
+        - name: usersapi
+          image: usersapi:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5180
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: MongoDB__ConnectionString
+              value: "mongodb://mongo:27017"
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 5180
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 5180
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: usersapi
+spec:
+  selector:
+    app: usersapi
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5180
+      nodePort: 30081
+  type: NodePort
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: usersapi-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: usersapi
+  minReplicas: 3
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
